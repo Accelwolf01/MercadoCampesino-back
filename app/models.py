@@ -1,0 +1,227 @@
+from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey, Numeric, Date, Time, Table
+from sqlalchemy.orm import relationship
+from datetime import datetime
+from app.database import Base
+
+
+perfiles_permisos = Table(
+    "perfiles_permisos", Base.metadata,
+    Column("id_perfil", Integer, ForeignKey("perfiles.id", ondelete="CASCADE"), primary_key=True),
+    Column("id_permiso", Integer, ForeignKey("permisos.id", ondelete="CASCADE"), primary_key=True),
+)
+
+
+class Perfil(Base):
+    __tablename__ = "perfiles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(50), unique=True, nullable=False)
+    descripcion = Column(Text)
+    activo = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    usuarios = relationship("Usuario", back_populates="perfil")
+    permisos = relationship("Permiso", secondary=perfiles_permisos, back_populates="perfiles")
+
+
+class Permiso(Base):
+    __tablename__ = "permisos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(100), unique=True, nullable=False)
+    codigo = Column(String(100), unique=True, nullable=False)
+    descripcion = Column(Text)
+    created_at = Column(DateTime, default=datetime.now)
+
+    perfiles = relationship("Perfil", secondary=perfiles_permisos, back_populates="permisos")
+
+
+class Usuario(Base):
+    __tablename__ = "usuarios"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombres = Column(String(100), nullable=False)
+    apellidos = Column(String(100), nullable=False)
+    cedula = Column(String(20), unique=True, nullable=False)
+    email = Column(String(150), unique=True, nullable=False)
+    celular = Column(String(15), unique=True, nullable=False)
+    password_hash = Column(Text, nullable=False)
+    id_perfil = Column(Integer, ForeignKey("perfiles.id"), nullable=False)
+    email_verificado = Column(Boolean, default=False)
+    celular_verificado = Column(Boolean, default=False)
+    foto_cedula = Column(Text)
+    verificado_por_admin = Column(Boolean, default=False)
+    puntos_confianza = Column(Integer, default=100)
+    activo = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    perfil = relationship("Perfil", back_populates="usuarios")
+    viajes = relationship("Viaje", back_populates="campesino", foreign_keys="Viaje.id_campesino")
+
+
+class Categoria(Base):
+    __tablename__ = "categorias"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(100), unique=True, nullable=False)
+    descripcion = Column(Text)
+    activo = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+
+    productos = relationship("Producto", back_populates="categoria")
+
+
+class Calidad(Base):
+    __tablename__ = "calidades"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(50), unique=True, nullable=False)
+    descripcion = Column(Text)
+    activo = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+
+
+class Producto(Base):
+    __tablename__ = "productos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(100), nullable=False)
+    id_categoria = Column(Integer, ForeignKey("categorias.id"))
+    id_creador = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
+    unidad = Column(String(20), default="kg")
+    precio = Column(Numeric(12, 2), nullable=True)
+    foto_url = Column(Text)
+    activo = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+
+    categoria = relationship("Categoria", back_populates="productos")
+    creador = relationship("Usuario")
+
+
+class Plaza(Base):
+    __tablename__ = "plazas"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(150), unique=True, nullable=False)
+    direccion = Column(Text)
+    latitud = Column(Numeric(10, 7))
+    longitud = Column(Numeric(10, 7))
+    activo = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+
+
+class Viaje(Base):
+    __tablename__ = "viajes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    id_campesino = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    fecha_viaje = Column(Date, nullable=False)
+    hora_inicio = Column(Time)
+    hora_fin = Column(Time)
+    notas = Column(Text)
+    activo = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    campesino = relationship("Usuario", back_populates="viajes", foreign_keys=[id_campesino])
+    ubicaciones = relationship("ViajeUbicacion", back_populates="viaje", cascade="all, delete-orphan")
+    productos = relationship("ViajeProducto", back_populates="viaje", cascade="all, delete-orphan")
+
+
+class ViajeUbicacion(Base):
+    __tablename__ = "viaje_ubicaciones"
+
+    id = Column(Integer, primary_key=True, index=True)
+    id_viaje = Column(Integer, ForeignKey("viajes.id", ondelete="CASCADE"), nullable=False)
+    id_plaza = Column(Integer, ForeignKey("plazas.id"))
+    latitud = Column(Numeric(10, 7), nullable=False)
+    longitud = Column(Numeric(10, 7), nullable=False)
+    direccion = Column(Text)
+    foto_url = Column(Text)
+    activa = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+
+    viaje = relationship("Viaje", back_populates="ubicaciones")
+    plaza = relationship("Plaza")
+
+
+class ViajeProducto(Base):
+    __tablename__ = "viaje_productos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    id_viaje = Column(Integer, ForeignKey("viajes.id", ondelete="CASCADE"), nullable=False)
+    id_producto = Column(Integer, ForeignKey("productos.id"), nullable=False)
+    id_calidad = Column(Integer, ForeignKey("calidades.id"))
+    precio = Column(Numeric(12, 2), nullable=False)
+    cantidad_inicial = Column(Numeric(12, 2), nullable=False)
+    cantidad_disponible = Column(Numeric(12, 2), nullable=False)
+    activo = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    viaje = relationship("Viaje", back_populates="productos")
+    producto = relationship("Producto")
+    calidad = relationship("Calidad")
+    ofertas = relationship("OfertaFlash", back_populates="viaje_producto", cascade="all, delete-orphan")
+    fotos = relationship("ProductoFoto", back_populates="viaje_producto", cascade="all, delete-orphan")
+
+
+class ProductoFoto(Base):
+    __tablename__ = "producto_fotos"
+
+    id = Column(Integer, primary_key=True, index=True)
+    id_viaje_producto = Column(Integer, ForeignKey("viaje_productos.id", ondelete="CASCADE"), nullable=False)
+    url = Column(Text, nullable=False)
+    orden = Column(Integer, default=0)
+    created_at = Column(DateTime, default=datetime.now)
+
+    viaje_producto = relationship("ViajeProducto", back_populates="fotos")
+
+
+class Preorden(Base):
+    __tablename__ = "preordenes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    id_viaje_producto = Column(Integer, ForeignKey("viaje_productos.id"), nullable=False)
+    id_consumidor = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    cantidad = Column(Numeric(12, 2), nullable=False)
+    estado = Column(String(20), default="pendiente")
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    viaje_producto = relationship("ViajeProducto")
+    consumidor = relationship("Usuario")
+
+
+class Resenia(Base):
+    __tablename__ = "resenias"
+
+    id = Column(Integer, primary_key=True, index=True)
+    id_autor = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    id_destino = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    id_viaje = Column(Integer, ForeignKey("viajes.id"))
+    puntuacion = Column(Integer, nullable=False)
+    comentario = Column(Text)
+    respuesta = Column(Text)
+    reportada = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.now)
+
+    autor = relationship("Usuario", foreign_keys=[id_autor])
+    destino = relationship("Usuario", foreign_keys=[id_destino])
+
+
+class OfertaFlash(Base):
+    __tablename__ = "ofertas_flash"
+
+    id = Column(Integer, primary_key=True, index=True)
+    id_viaje_producto = Column(Integer, ForeignKey("viaje_productos.id"), nullable=False)
+    descuento_porcentaje = Column(Numeric(5, 2), nullable=False)
+    precio_oferta = Column(Numeric(12, 2), nullable=False)
+    cantidad_limite = Column(Numeric(12, 2))
+    activa = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    viaje_producto = relationship("ViajeProducto", back_populates="ofertas")

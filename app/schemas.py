@@ -416,6 +416,7 @@ class UsuarioRegister(BaseModel):
     celular: str
     password: str
     tipo: str = "consumidor"
+    foto_cedula: str | None = None
 
     @field_validator("cedula")
     @classmethod

@@ -54,6 +54,7 @@ def registro(data: UsuarioRegister, db: Session = Depends(get_db)):
         celular=data.celular,
         password_hash=hash_password(data.password),
         id_perfil=perfil.id,
+        foto_cedula=data.foto_cedula,
         activo=False,
         verificado_por_admin=False,
     )

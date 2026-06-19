@@ -475,6 +475,42 @@ class CambioPassword(BaseModel):
         return v
 
 
+class TicketCreate(BaseModel):
+    asunto: str
+    mensaje: str
+
+
+class TicketRespuestaCreate(BaseModel):
+    mensaje: str
+
+
+class TicketRespuestaOut(BaseModel):
+    id: int
+    id_ticket: int
+    id_autor: int
+    mensaje: str
+    created_at: datetime
+    autor: Optional[UsuarioOut] = None
+
+    class Config:
+        from_attributes = True
+
+
+class TicketOut(BaseModel):
+    id: int
+    id_remitente: int
+    asunto: str
+    mensaje: str
+    estado: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    remitente: Optional[UsuarioOut] = None
+    respuestas: list[TicketRespuestaOut] = []
+
+    class Config:
+        from_attributes = True
+
+
 OfertaFlashFullOut.model_rebuild()
 ViajeProductoFullOut.model_rebuild()
 ViajeMiniOut.model_rebuild()

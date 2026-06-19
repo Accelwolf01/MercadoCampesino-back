@@ -225,3 +225,31 @@ class OfertaFlash(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     viaje_producto = relationship("ViajeProducto", back_populates="ofertas")
+
+
+class Ticket(Base):
+    __tablename__ = "tickets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    id_remitente = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    asunto = Column(String(200), nullable=False)
+    mensaje = Column(Text, nullable=False)
+    estado = Column(String(20), default="abierto")
+    created_at = Column(DateTime, default=datetime.now)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+
+    remitente = relationship("Usuario", foreign_keys=[id_remitente])
+    respuestas = relationship("TicketRespuesta", back_populates="ticket", cascade="all, delete-orphan", order_by="TicketRespuesta.created_at")
+
+
+class TicketRespuesta(Base):
+    __tablename__ = "ticket_respuestas"
+
+    id = Column(Integer, primary_key=True, index=True)
+    id_ticket = Column(Integer, ForeignKey("tickets.id", ondelete="CASCADE"), nullable=False)
+    id_autor = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
+    mensaje = Column(Text, nullable=False)
+    created_at = Column(DateTime, default=datetime.now)
+
+    ticket = relationship("Ticket", back_populates="respuestas")
+    autor = relationship("Usuario", foreign_keys=[id_autor])

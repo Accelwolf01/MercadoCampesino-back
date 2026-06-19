@@ -38,7 +38,7 @@ def obtener_usuario(
 def crear_usuario(
     data: UsuarioCreate,
     db: Session = Depends(get_db),
-    _=Depends(verificar_permiso("gestionar_usuarios")),
+    usuario_actual: Usuario = Depends(verificar_permiso("gestionar_usuarios")),
 ):
     if db.query(Usuario).filter(
         (Usuario.email == data.email) | (Usuario.cedula == data.cedula)
@@ -49,6 +49,11 @@ def crear_usuario(
     if not perfil:
         raise HTTPException(status_code=400, detail="Perfil no válido")
 
+    if perfil.nombre == "superadmin" and usuario_actual.id_perfil != 1:
+        raise HTTPException(status_code=403, detail="Solo un superadmin puede crear otro superadmin")
+    if perfil.nombre == "admin" and usuario_actual.id_perfil not in (1, 2):
+        raise HTTPException(status_code=403, detail="Solo un admin o superadmin puede crear un admin")
+
     usuario = Usuario(
         nombres=data.nombres,
         apellidos=data.apellidos,
@@ -57,6 +62,8 @@ def crear_usuario(
         celular=data.celular,
         password_hash=hash_password(data.password),
         id_perfil=data.id_perfil,
+        verificado_por_admin=True,
+        activo=True,
     )
     db.add(usuario)
     db.commit()
@@ -69,7 +76,7 @@ def actualizar_usuario(
     usuario_id: int,
     data: UsuarioUpdate,
     db: Session = Depends(get_db),
-    _=Depends(verificar_permiso("gestionar_usuarios")),
+    usuario_actual: Usuario = Depends(verificar_permiso("gestionar_usuarios")),
 ):
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
@@ -81,6 +88,10 @@ def actualizar_usuario(
         perfil = db.query(Perfil).filter(Perfil.id == update_data["id_perfil"]).first()
         if not perfil:
             raise HTTPException(status_code=400, detail="Perfil no válido")
+        if perfil.nombre == "superadmin" and usuario_actual.id_perfil != 1:
+            raise HTTPException(status_code=403, detail="Solo un superadmin puede asignar el perfil superadmin")
+        if perfil.nombre == "admin" and usuario_actual.id_perfil not in (1, 2):
+            raise HTTPException(status_code=403, detail="Solo un admin o superadmin puede asignar el perfil admin")
 
     for key, value in update_data.items():
         setattr(usuario, key, value)

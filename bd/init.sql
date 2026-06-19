@@ -12,6 +12,14 @@ DROP TABLE IF EXISTS resenias CASCADE;
 DROP TABLE IF EXISTS preordenes CASCADE;
 DROP TABLE IF EXISTS viaje_productos CASCADE;
 DROP TABLE IF EXISTS viaje_ubicaciones CASCADE;
+DROP TABLE IF EXISTS ticket_respuestas CASCADE;
+DROP TABLE IF EXISTS tickets CASCADE;
+DROP TABLE IF EXISTS producto_fotos CASCADE;
+DROP TABLE IF EXISTS ofertas_flash CASCADE;
+DROP TABLE IF EXISTS resenias CASCADE;
+DROP TABLE IF EXISTS preordenes CASCADE;
+DROP TABLE IF EXISTS viaje_productos CASCADE;
+DROP TABLE IF EXISTS viaje_ubicaciones CASCADE;
 DROP TABLE IF EXISTS viajes CASCADE;
 DROP TABLE IF EXISTS plazas CASCADE;
 DROP TABLE IF EXISTS productos CASCADE;
@@ -331,6 +339,26 @@ CREATE TABLE ofertas_flash (
   activa            BOOLEAN      NOT NULL DEFAULT TRUE,
   created_at        TIMESTAMP    NOT NULL DEFAULT NOW(),
   updated_at        TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+-- Tickets de soporte: canal de comunicacin usuario -> administrador
+CREATE TABLE tickets (
+  id            SERIAL       PRIMARY KEY,
+  id_remitente  INT          NOT NULL REFERENCES usuarios(id),
+  asunto        VARCHAR(200) NOT NULL,
+  mensaje       TEXT         NOT NULL,
+  estado        VARCHAR(20)  NOT NULL DEFAULT 'abierto',  -- abierto, en_progreso, finalizado
+  created_at    TIMESTAMP    NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+-- Respuestas/avances en cada ticket
+CREATE TABLE ticket_respuestas (
+  id          SERIAL       PRIMARY KEY,
+  id_ticket   INT          NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
+  id_autor    INT          NOT NULL REFERENCES usuarios(id),
+  mensaje     TEXT         NOT NULL,
+  created_at  TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
 -- ============================================================

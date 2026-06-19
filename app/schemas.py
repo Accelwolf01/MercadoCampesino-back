@@ -100,6 +100,7 @@ class UsuarioOut(BaseModel):
     email_verificado: bool
     celular_verificado: bool
     verificado_por_admin: bool
+    foto_cedula: Optional[str] = None
     puntos_confianza: int
     activo: bool
     created_at: datetime

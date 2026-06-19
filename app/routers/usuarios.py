@@ -181,6 +181,22 @@ def activar_usuario(
     return usuario
 
 
+@router.put("/{usuario_id}/rechazar", status_code=200)
+def rechazar_usuario(
+    usuario_id: int,
+    db: Session = Depends(get_db),
+    _=Depends(verificar_permiso("verificar_campesinos")),
+):
+    usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if usuario.verificado_por_admin:
+        raise HTTPException(status_code=400, detail="El usuario ya fue verificado")
+    db.delete(usuario)
+    db.commit()
+    return {"mensaje": "Solicitud rechazada. El usuario puede volver a registrarse."}
+
+
 @router.put("/{usuario_id}/reset-password")
 def reset_password(
     usuario_id: int,

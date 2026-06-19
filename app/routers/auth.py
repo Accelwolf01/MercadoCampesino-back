@@ -5,7 +5,7 @@ from app.database import get_db
 from app.models import Usuario, Perfil
 from app.schemas import (
     LoginRequest, TokenResponse, UsuarioOut,
-    UsuarioRegister, CambioPassword,
+    UsuarioRegister, CambioPassword, UsuarioUpdatePerfil,
 )
 from app.auth import verify_password, create_access_token, get_current_user, hash_password
 
@@ -70,6 +70,25 @@ def registro(data: UsuarioRegister, db: Session = Depends(get_db)):
 
 @router.get("/me", response_model=UsuarioOut)
 def yo_mismo(usuario: Usuario = Depends(get_current_user)):
+    return UsuarioOut.model_validate(usuario)
+
+
+@router.put("/me", response_model=UsuarioOut)
+def actualizar_perfil(
+    data: UsuarioUpdatePerfil,
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(get_current_user),
+):
+    if db.query(Usuario).filter(Usuario.email == data.email, Usuario.id != usuario.id).first():
+        raise HTTPException(status_code=400, detail="El email ya está en uso por otro usuario")
+    if db.query(Usuario).filter(Usuario.celular == data.celular, Usuario.id != usuario.id).first():
+        raise HTTPException(status_code=400, detail="El celular ya está en uso por otro usuario")
+    usuario.nombres = data.nombres
+    usuario.apellidos = data.apellidos
+    usuario.email = data.email
+    usuario.celular = data.celular
+    db.commit()
+    db.refresh(usuario)
     return UsuarioOut.model_validate(usuario)
 
 

@@ -79,6 +79,13 @@ class UsuarioCreate(BaseModel):
         return v
 
 
+class UsuarioUpdatePerfil(BaseModel):
+    nombres: str
+    apellidos: str
+    email: str
+    celular: str
+
+
 class UsuarioUpdate(BaseModel):
     nombres: Optional[str] = None
     apellidos: Optional[str] = None

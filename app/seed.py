@@ -8,8 +8,36 @@ def init_db():
     Base.metadata.create_all(bind=engine)
 
 
+PERMISOS_FALTANTES = [
+    {"nombre": "Realizar preorden", "codigo": "realizar_preorden", "descripcion": "Apartar productos antes de ir a la plaza"},
+    {"nombre": "Ver preordenes", "codigo": "ver_preordenes", "descripcion": "Ver pedidos apartados por consumidores"},
+]
+
+
+def _agregar_permisos_faltantes(db: Session):
+    for pdata in PERMISOS_FALTANTES:
+        existente = db.query(Permiso).filter(Permiso.codigo == pdata["codigo"]).first()
+        if not existente:
+            permiso = Permiso(**pdata)
+            db.add(permiso)
+            db.flush()
+            superadmin = db.query(Perfil).filter(Perfil.nombre == "superadmin").first()
+            if superadmin:
+                db.execute(perfiles_permisos.insert().values(id_perfil=superadmin.id, id_permiso=permiso.id))
+            if pdata["codigo"] == "ver_preordenes":
+                campesino = db.query(Perfil).filter(Perfil.nombre == "campesino").first()
+                if campesino:
+                    db.execute(perfiles_permisos.insert().values(id_perfil=campesino.id, id_permiso=permiso.id))
+            if pdata["codigo"] == "realizar_preorden":
+                consumidor = db.query(Perfil).filter(Perfil.nombre == "consumidor").first()
+                if consumidor:
+                    db.execute(perfiles_permisos.insert().values(id_perfil=consumidor.id, id_permiso=permiso.id))
+    db.commit()
+
+
 def seed_data(db: Session):
     if db.query(Perfil).count() > 0:
+        _agregar_permisos_faltantes(db)
         return
 
     perfiles_data = [
@@ -33,6 +61,8 @@ def seed_data(db: Session):
         {"nombre": "Gestionar permisos", "codigo": "gestionar_permisos", "descripcion": "Asignar permisos a perfiles"},
         {"nombre": "Ver reportes", "codigo": "ver_reportes", "descripcion": "Ver reportes del sistema"},
         {"nombre": "Gestionar config", "codigo": "gestionar_config", "descripcion": "Gestionar configuracion del sistema"},
+        {"nombre": "Realizar preorden", "codigo": "realizar_preorden", "descripcion": "Apartar productos antes de ir a la plaza"},
+        {"nombre": "Ver preordenes", "codigo": "ver_preordenes", "descripcion": "Ver pedidos apartados por consumidores"},
     ]
     permisos = {}
     for perm in permisos_data:
@@ -48,9 +78,13 @@ def seed_data(db: Session):
         {"id_perfil": perfiles["superadmin"].id, "id_permiso": permisos["gestionar_permisos"].id},
         {"id_perfil": perfiles["superadmin"].id, "id_permiso": permisos["ver_reportes"].id},
         {"id_perfil": perfiles["superadmin"].id, "id_permiso": permisos["gestionar_config"].id},
+        {"id_perfil": perfiles["superadmin"].id, "id_permiso": permisos["realizar_preorden"].id},
+        {"id_perfil": perfiles["superadmin"].id, "id_permiso": permisos["ver_preordenes"].id},
         {"id_perfil": perfiles["admin"].id, "id_permiso": permisos["verificar_usuarios"].id},
         {"id_perfil": perfiles["admin"].id, "id_permiso": permisos["gestionar_categorias"].id},
         {"id_perfil": perfiles["admin"].id, "id_permiso": permisos["ver_reportes"].id},
+        {"id_perfil": perfiles["campesino"].id, "id_permiso": permisos["ver_preordenes"].id},
+        {"id_perfil": perfiles["consumidor"].id, "id_permiso": permisos["realizar_preorden"].id},
     ]))
 
     password_hash = bcrypt.hashpw(b"SuperAdmin2026!", bcrypt.gensalt()).decode()

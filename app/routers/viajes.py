@@ -2,10 +2,10 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
-from app.models import Viaje, ViajeUbicacion, ViajeProducto, ProductoFoto, OfertaFlash, Producto, Usuario
+from app.models import Viaje, ViajeUbicacion, ViajeProducto, ProductoFoto, OfertaFlash, Producto, Usuario, Plaza
 from app.schemas import (
     ViajeOut, ViajeCreate, ViajeUpdate,
-    ViajeUbicacionCreate, ViajeProductoCreate,
+    ViajeUbicacionCreate, ViajeUbicacionUpdate, ViajeProductoCreate,
 )
 from app.auth import get_current_user, verificar_permiso
 
@@ -136,6 +136,37 @@ def actualizar_ubicacion(
         u.activa = False
 
     viaje.ubicaciones.append(ViajeUbicacion(**data.model_dump(), activa=True))
+    db.commit()
+    db.refresh(viaje)
+    return viaje
+
+
+@router.put("/ubicacion/{ubicacion_id}", response_model=ViajeOut)
+def actualizar_ubicacion_data(
+    ubicacion_id: int,
+    data: ViajeUbicacionUpdate,
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(get_current_user),
+):
+    ubi = db.query(ViajeUbicacion).filter(ViajeUbicacion.id == ubicacion_id).first()
+    if not ubi:
+        raise HTTPException(status_code=404, detail="Ubicación no encontrada")
+    viaje = db.query(Viaje).filter(Viaje.id == ubi.id_viaje).first()
+    if not viaje or viaje.id_campesino != usuario.id:
+        raise HTTPException(status_code=403, detail="No puedes modificar esta ubicación")
+
+    fields = data.model_dump(exclude_unset=True)
+    if "id_plaza" in fields and fields["id_plaza"] is not None:
+        plaza = db.query(Plaza).filter(Plaza.id == fields["id_plaza"]).first()
+        if not plaza:
+            raise HTTPException(status_code=400, detail="Plaza no encontrada")
+        if "latitud" not in fields and plaza.latitud:
+            fields["latitud"] = plaza.latitud
+        if "longitud" not in fields and plaza.longitud:
+            fields["longitud"] = plaza.longitud
+
+    for key, value in fields.items():
+        setattr(ubi, key, value)
     db.commit()
     db.refresh(viaje)
     return viaje

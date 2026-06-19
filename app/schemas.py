@@ -240,6 +240,14 @@ class ViajeUbicacionCreate(BaseModel):
     foto_url: Optional[str] = None
 
 
+class ViajeUbicacionUpdate(BaseModel):
+    id_plaza: Optional[int] = None
+    latitud: Optional[float] = None
+    longitud: Optional[float] = None
+    direccion: Optional[str] = None
+    foto_url: Optional[str] = None
+
+
 class OfertaFlashOut(BaseModel):
     id: int
     id_viaje_producto: int

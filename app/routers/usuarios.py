@@ -186,13 +186,15 @@ def reset_password(
     usuario_id: int,
     body: ResetPasswordBody,
     db: Session = Depends(get_db),
-    _=Depends(verificar_permiso("gestionar_usuarios")),
+    usuario_actual: Usuario = Depends(verificar_permiso("gestionar_usuarios")),
 ):
     if len(body.nueva_password) < 6:
         raise HTTPException(status_code=400, detail="La contraseña debe tener al menos 6 caracteres")
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if usuario.id_perfil == 1 and usuario_actual.id_perfil != 1:
+        raise HTTPException(status_code=403, detail="No puedes restablecer la contraseña de un superadmin")
     usuario.password_hash = hash_password(body.nueva_password)
     db.commit()
     return {"mensaje": "Contraseña restablecida correctamente"}

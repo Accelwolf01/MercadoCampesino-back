@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, Foreign
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
+from app.config import bogota_now
 
 
 perfiles_permisos = Table(
@@ -18,8 +19,8 @@ class Perfil(Base):
     nombre = Column(String(50), unique=True, nullable=False)
     descripcion = Column(Text)
     activo = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
+    updated_at = Column(DateTime, default=bogota_now, onupdate=bogota_now)
 
     usuarios = relationship("Usuario", back_populates="perfil")
     permisos = relationship("Permiso", secondary=perfiles_permisos, back_populates="perfiles")
@@ -32,7 +33,7 @@ class Permiso(Base):
     nombre = Column(String(100), unique=True, nullable=False)
     codigo = Column(String(100), unique=True, nullable=False)
     descripcion = Column(Text)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
 
     perfiles = relationship("Perfil", secondary=perfiles_permisos, back_populates="permisos")
 
@@ -54,8 +55,8 @@ class Usuario(Base):
     verificado_por_admin = Column(Boolean, default=False)
     puntos_confianza = Column(Integer, default=100)
     activo = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
+    updated_at = Column(DateTime, default=bogota_now, onupdate=bogota_now)
 
     perfil = relationship("Perfil", back_populates="usuarios")
     viajes = relationship("Viaje", back_populates="campesino", foreign_keys="Viaje.id_campesino")
@@ -68,7 +69,7 @@ class Categoria(Base):
     nombre = Column(String(100), unique=True, nullable=False)
     descripcion = Column(Text)
     activo = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
 
     productos = relationship("Producto", back_populates="categoria")
 
@@ -80,7 +81,7 @@ class Calidad(Base):
     nombre = Column(String(50), unique=True, nullable=False)
     descripcion = Column(Text)
     activo = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
 
 
 class Producto(Base):
@@ -94,7 +95,7 @@ class Producto(Base):
     precio = Column(Numeric(12, 2), nullable=True)
     foto_url = Column(Text)
     activo = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
 
     categoria = relationship("Categoria", back_populates="productos")
     creador = relationship("Usuario")
@@ -109,7 +110,7 @@ class Plaza(Base):
     latitud = Column(Numeric(10, 7))
     longitud = Column(Numeric(10, 7))
     activo = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
 
 
 class Viaje(Base):
@@ -122,8 +123,8 @@ class Viaje(Base):
     hora_fin = Column(Time)
     notas = Column(Text)
     activo = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
+    updated_at = Column(DateTime, default=bogota_now, onupdate=bogota_now)
 
     campesino = relationship("Usuario", back_populates="viajes", foreign_keys=[id_campesino])
     ubicaciones = relationship("ViajeUbicacion", back_populates="viaje", cascade="all, delete-orphan")
@@ -141,7 +142,7 @@ class ViajeUbicacion(Base):
     direccion = Column(Text)
     foto_url = Column(Text)
     activa = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
 
     viaje = relationship("Viaje", back_populates="ubicaciones")
     plaza = relationship("Plaza")
@@ -158,8 +159,8 @@ class ViajeProducto(Base):
     cantidad_inicial = Column(Numeric(12, 2), nullable=False)
     cantidad_disponible = Column(Numeric(12, 2), nullable=False)
     activo = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
+    updated_at = Column(DateTime, default=bogota_now, onupdate=bogota_now)
 
     viaje = relationship("Viaje", back_populates="productos")
     producto = relationship("Producto")
@@ -175,7 +176,7 @@ class ProductoFoto(Base):
     id_viaje_producto = Column(Integer, ForeignKey("viaje_productos.id", ondelete="CASCADE"), nullable=False)
     url = Column(Text, nullable=False)
     orden = Column(Integer, default=0)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
 
     viaje_producto = relationship("ViajeProducto", back_populates="fotos")
 
@@ -188,8 +189,8 @@ class Preorden(Base):
     id_consumidor = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     cantidad = Column(Numeric(12, 2), nullable=False)
     estado = Column(String(20), default="pendiente")
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
+    updated_at = Column(DateTime, default=bogota_now, onupdate=bogota_now)
 
     viaje_producto = relationship("ViajeProducto")
     consumidor = relationship("Usuario")
@@ -206,7 +207,7 @@ class Resenia(Base):
     comentario = Column(Text)
     respuesta = Column(Text)
     reportada = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
 
     autor = relationship("Usuario", foreign_keys=[id_autor])
     destino = relationship("Usuario", foreign_keys=[id_destino])
@@ -221,8 +222,8 @@ class OfertaFlash(Base):
     precio_oferta = Column(Numeric(12, 2), nullable=False)
     cantidad_limite = Column(Numeric(12, 2))
     activa = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
+    updated_at = Column(DateTime, default=bogota_now, onupdate=bogota_now)
 
     viaje_producto = relationship("ViajeProducto", back_populates="ofertas")
 
@@ -235,8 +236,8 @@ class Ticket(Base):
     asunto = Column(String(200), nullable=False)
     mensaje = Column(Text, nullable=False)
     estado = Column(String(20), default="abierto")
-    created_at = Column(DateTime, default=datetime.now)
-    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
+    updated_at = Column(DateTime, default=bogota_now, onupdate=bogota_now)
 
     remitente = relationship("Usuario", foreign_keys=[id_remitente])
     respuestas = relationship("TicketRespuesta", back_populates="ticket", cascade="all, delete-orphan", order_by="TicketRespuesta.created_at")
@@ -249,7 +250,7 @@ class TicketRespuesta(Base):
     id_ticket = Column(Integer, ForeignKey("tickets.id", ondelete="CASCADE"), nullable=False)
     id_autor = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
     mensaje = Column(Text, nullable=False)
-    created_at = Column(DateTime, default=datetime.now)
+    created_at = Column(DateTime, default=bogota_now)
 
     ticket = relationship("Ticket", back_populates="respuestas")
     autor = relationship("Usuario", foreign_keys=[id_autor])

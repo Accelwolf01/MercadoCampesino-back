@@ -1,7 +1,14 @@
 import os
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
+
+BOGOTA_OFFSET = timedelta(hours=-5)
+
+
+def bogota_now() -> datetime:
+    return datetime.utcnow() + BOGOTA_OFFSET
 
 DB_HOST = os.getenv("DB_HOST", "aws-1-us-west-2.pooler.supabase.com")
 DB_PORT = os.getenv("DB_PORT", "5432")

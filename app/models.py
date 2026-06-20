@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, Foreign
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
-from app.config import bogota_now
+from config import bogota_now
 
 
 perfiles_permisos = Table(

@@ -41,12 +41,12 @@ def viajes_activos_hoy(
     id_plaza: Optional[int] = Query(None),
     db: Session = Depends(get_db),
 ):
-    from datetime import date
+    from config import bogota_today
     q = db.query(Viaje).options(
         joinedload(Viaje.campesino),
         joinedload(Viaje.ubicaciones).joinedload(ViajeUbicacion.plaza),
         joinedload(Viaje.productos).joinedload(ViajeProducto.producto),
-    ).filter(Viaje.fecha_viaje == date.today(), Viaje.activo == True)
+    ).filter(Viaje.fecha_viaje == bogota_today(), Viaje.activo == True)
 
     if id_plaza:
         subq = db.query(ViajeUbicacion.id_viaje).filter(

@@ -4,7 +4,7 @@ from app.database import get_db
 from app.models import Resenia, Usuario, Perfil
 from app.schemas import ReseniaOut, ReseniaCreate, ReseniaUpdate, UsuarioOut as ReseniaUsuarioOut
 from app.auth import get_current_user, verificar_permiso
-from app.config import bogota_today
+from config import bogota_today
 
 router = APIRouter(prefix="/resenias", tags=["Reseñas"])
 

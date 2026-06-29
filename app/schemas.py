@@ -368,6 +368,7 @@ class PreordenOut(BaseModel):
     cantidad: float
     estado: str
     viaje_producto: Optional[ViajeProductoOut] = None
+    consumidor: Optional[UsuarioOut] = None
     created_at: datetime
 
     class Config:

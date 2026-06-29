@@ -36,6 +36,7 @@ def preordenes_recibidas(
 ):
     return (
         db.query(Preorden)
+        .options(joinedload(Preorden.consumidor))
         .join(ViajeProducto, ViajeProducto.id == Preorden.id_viaje_producto)
         .join(Viaje, Viaje.id == ViajeProducto.id_viaje)
         .filter(Viaje.id_campesino == usuario.id)

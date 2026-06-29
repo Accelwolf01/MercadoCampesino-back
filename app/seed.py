@@ -42,7 +42,7 @@ def seed_data(db: Session):
 
     perfiles_data = [
         {"nombre": "superadmin", "descripcion": "Superadministrador del sistema"},
-        {"nombre": "admin", "descripcion": "Administrador de la plataforma"},
+        {"nombre": "administrador", "descripcion": "Administrador de la plataforma"},
         {"nombre": "campesino", "descripcion": "Campesino vendedor"},
         {"nombre": "consumidor", "descripcion": "Consumidor comprador"},
         {"nombre": "bloqueado", "descripcion": "Usuario bloqueado"},
@@ -80,9 +80,9 @@ def seed_data(db: Session):
         {"id_perfil": perfiles["superadmin"].id, "id_permiso": permisos["gestionar_config"].id},
         {"id_perfil": perfiles["superadmin"].id, "id_permiso": permisos["realizar_preorden"].id},
         {"id_perfil": perfiles["superadmin"].id, "id_permiso": permisos["ver_preordenes"].id},
-        {"id_perfil": perfiles["admin"].id, "id_permiso": permisos["verificar_usuarios"].id},
-        {"id_perfil": perfiles["admin"].id, "id_permiso": permisos["gestionar_categorias"].id},
-        {"id_perfil": perfiles["admin"].id, "id_permiso": permisos["ver_reportes"].id},
+        {"id_perfil": perfiles["administrador"].id, "id_permiso": permisos["verificar_usuarios"].id},
+        {"id_perfil": perfiles["administrador"].id, "id_permiso": permisos["gestionar_categorias"].id},
+        {"id_perfil": perfiles["administrador"].id, "id_permiso": permisos["ver_reportes"].id},
         {"id_perfil": perfiles["campesino"].id, "id_permiso": permisos["ver_preordenes"].id},
         {"id_perfil": perfiles["consumidor"].id, "id_permiso": permisos["realizar_preorden"].id},
     ]))
@@ -91,7 +91,7 @@ def seed_data(db: Session):
 
     usuarios_data = [
         {"nombres": "Super", "apellidos": "Admin", "cedula": "0000000001", "email": "superadmin@mercadocampesino.co", "celular": "3000000001", "password_hash": password_hash, "id_perfil": perfiles["superadmin"].id, "activo": True, "verificado_por_admin": True},
-        {"nombres": "Admin", "apellidos": "Principal", "cedula": "0000000002", "email": "admin@mercadocampesino.co", "celular": "3000000002", "password_hash": password_hash, "id_perfil": perfiles["admin"].id, "activo": True, "verificado_por_admin": True},
+        {"nombres": "Admin", "apellidos": "Principal", "cedula": "0000000002", "email": "admin@mercadocampesino.co", "celular": "3000000002", "password_hash": password_hash, "id_perfil": perfiles["administrador"].id, "activo": True, "verificado_por_admin": True},
         {"nombres": "Carlos", "apellidos": "Campesino", "cedula": "123456789", "email": "carlos@campesino.co", "celular": "3001111111", "password_hash": password_hash, "id_perfil": perfiles["campesino"].id, "activo": True, "verificado_por_admin": True},
         {"nombres": "Ana", "apellidos": "Consumidora", "cedula": "987654321", "email": "ana@consumidor.co", "celular": "3002222222", "password_hash": password_hash, "id_perfil": perfiles["consumidor"].id, "activo": True, "verificado_por_admin": True},
     ]

@@ -218,7 +218,7 @@ VALUES (
   'admin@mercadocampesino.co',
   '3000000003',
   '$2b$12$mRO5h0bo4Zw27kuPFpe4xO6Tj76xpzq77Jhf3tTSO.zkEKyJYs5VK',
-  (SELECT id FROM perfiles WHERE nombre = 'admin'),
+  (SELECT id FROM perfiles WHERE nombre = 'administrador'),
   TRUE, TRUE, TRUE
 );
 

@@ -45,10 +45,9 @@ def ofertas_activas(db: Session = Depends(get_db)):
         .filter(ViajeProducto.activo == True)
         .filter(ViajeProducto.cantidad_disponible > 0)
         .filter(Viaje.activo == True)
-        .filter(Viaje.fecha_viaje >= hoy)
+        .filter(Viaje.fecha_viaje == hoy)
         .filter(
             or_(
-                Viaje.fecha_viaje > hoy,
                 Viaje.hora_fin == None,
                 Viaje.hora_fin > hora_actual,
             )

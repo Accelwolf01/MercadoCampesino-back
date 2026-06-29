@@ -459,7 +459,7 @@ VALUES (
 
 -- Productos del catálogo (todos de Carlos Martínez, campesino)
 INSERT INTO productos (nombre, id_categoria, id_creador, unidad, precio, foto_url)
-SELECT datos.* FROM (VALUES
+SELECT datos.*, c.id FROM (VALUES
   ('Papa criolla',    (SELECT id FROM categorias WHERE nombre = 'Tubérculos y raíces'), 'kg',  3000, 'data:image/svg+xml;base64,'),
   ('Papa pastusa',    (SELECT id FROM categorias WHERE nombre = 'Tubérculos y raíces'), 'kg',  2500, 'data:image/svg+xml;base64,'),
   ('Yuca',            (SELECT id FROM categorias WHERE nombre = 'Tubérculos y raíces'), 'kg',  2000, 'data:image/svg+xml;base64,'),

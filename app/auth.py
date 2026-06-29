@@ -51,6 +51,25 @@ def get_current_user(
     return usuario
 
 
+def get_current_user_optional(
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+    db: Session = Depends(get_db),
+) -> Usuario | None:
+    if not credentials:
+        return None
+    try:
+        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = int(payload.get("sub"))
+        usuario = db.query(Usuario).options(
+            joinedload(Usuario.perfil).selectinload(Perfil.permisos)
+        ).filter(Usuario.id == user_id).first()
+        if usuario and usuario.activo:
+            return usuario
+    except JWTError:
+        pass
+    return None
+
+
 def verificar_permiso(codigo_requerido: str):
     def decorator(usuario: Usuario = Depends(get_current_user)) -> Usuario:
         permisos = [p.codigo for p in usuario.perfil.permisos]

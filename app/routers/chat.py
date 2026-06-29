@@ -7,7 +7,7 @@ from app.schemas import (
     ChatConversacionCreate, ChatConversacionOut, ChatConversacionMiniOut,
     ChatMensajeCreate, ChatMensajeOut,
 )
-from app.auth import get_current_user, verificar_permiso
+from app.auth import get_current_user_optional, verificar_permiso
 
 router = APIRouter(prefix="/chat", tags=["Chat en vivo"])
 
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/chat", tags=["Chat en vivo"])
 def crear_conversacion(
     data: ChatConversacionCreate,
     db: Session = Depends(get_db),
-    usuario: Usuario | None = Depends(get_current_user),
+    usuario: Usuario | None = Depends(get_current_user_optional),
 ):
     token = str(uuid.uuid4())
     conv = ChatConversacion(
@@ -38,7 +38,7 @@ def enviar_mensaje(
     data: ChatMensajeCreate,
     token: str = Query(""),
     db: Session = Depends(get_db),
-    usuario: Usuario | None = Depends(get_current_user),
+    usuario: Usuario | None = Depends(get_current_user_optional),
 ):
     conv = db.query(ChatConversacion).filter(ChatConversacion.id == conv_id).first()
     if not conv:
@@ -69,7 +69,7 @@ def obtener_conversacion(
     conv_id: int,
     token: str = Query(""),
     db: Session = Depends(get_db),
-    usuario: Usuario | None = Depends(get_current_user),
+    usuario: Usuario | None = Depends(get_current_user_optional),
 ):
     conv = db.query(ChatConversacion).filter(ChatConversacion.id == conv_id).first()
     if not conv:

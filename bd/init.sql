@@ -6,6 +6,8 @@
 -- ============================================================
 -- ELIMINAR TODO Y RECREAR (solo para desarrollo)
 -- ============================================================
+DROP TABLE IF EXISTS chat_mensajes CASCADE;
+DROP TABLE IF EXISTS chat_conversaciones CASCADE;
 DROP TABLE IF EXISTS producto_fotos CASCADE;
 DROP TABLE IF EXISTS ofertas_flash CASCADE;
 DROP TABLE IF EXISTS resenias CASCADE;
@@ -14,12 +16,6 @@ DROP TABLE IF EXISTS viaje_productos CASCADE;
 DROP TABLE IF EXISTS viaje_ubicaciones CASCADE;
 DROP TABLE IF EXISTS ticket_respuestas CASCADE;
 DROP TABLE IF EXISTS tickets CASCADE;
-DROP TABLE IF EXISTS producto_fotos CASCADE;
-DROP TABLE IF EXISTS ofertas_flash CASCADE;
-DROP TABLE IF EXISTS resenias CASCADE;
-DROP TABLE IF EXISTS preordenes CASCADE;
-DROP TABLE IF EXISTS viaje_productos CASCADE;
-DROP TABLE IF EXISTS viaje_ubicaciones CASCADE;
 DROP TABLE IF EXISTS viajes CASCADE;
 DROP TABLE IF EXISTS plazas CASCADE;
 DROP TABLE IF EXISTS productos CASCADE;
@@ -458,25 +454,22 @@ VALUES (
 );
 
 -- Productos del catálogo (todos de Carlos Martínez, campesino)
-INSERT INTO productos (nombre, id_categoria, id_creador, unidad, precio, foto_url)
-SELECT datos.*, c.id FROM (VALUES
-  ('Papa criolla',    (SELECT id FROM categorias WHERE nombre = 'Tubérculos y raíces'), 'kg',  3000, 'data:image/svg+xml;base64,'),
-  ('Papa pastusa',    (SELECT id FROM categorias WHERE nombre = 'Tubérculos y raíces'), 'kg',  2500, 'data:image/svg+xml;base64,'),
-  ('Yuca',            (SELECT id FROM categorias WHERE nombre = 'Tubérculos y raíces'), 'kg',  2000, 'data:image/svg+xml;base64,'),
-  ('Zanahoria',       (SELECT id FROM categorias WHERE nombre = 'Tubérculos y raíces'), 'kg',  2500, 'data:image/svg+xml;base64,'),
-  ('Tomate chonto',   (SELECT id FROM categorias WHERE nombre = 'Hortalizas y verduras'), 'kg', 4000, 'data:image/svg+xml;base64,'),
-  ('Cebolla cabezona',(SELECT id FROM categorias WHERE nombre = 'Hortalizas y verduras'), 'kg', 3500, 'data:image/svg+xml;base64,'),
-  ('Lechuga crespa',  (SELECT id FROM categorias WHERE nombre = 'Hortalizas y verduras'), 'unidad',2000, 'data:image/svg+xml;base64,'),
-  ('Fresas',          (SELECT id FROM categorias WHERE nombre = 'Frutas'),              'kg',  8000, 'data:image/svg+xml;base64,'),
-  ('Manzana',         (SELECT id FROM categorias WHERE nombre = 'Frutas'),              'kg',  5000, 'data:image/svg+xml;base64,'),
-  ('Naranja',         (SELECT id FROM categorias WHERE nombre = 'Frutas'),              'kg',  3000, 'data:image/svg+xml;base64,'),
-  ('Huevos de gallina',(SELECT id FROM categorias WHERE nombre = 'Huevos'),             'unidad',500, 'data:image/svg+xml;base64,'),
-  ('Leche entera',    (SELECT id FROM categorias WHERE nombre = 'Lácteos'),             'litro', 4500, 'data:image/svg+xml;base64,'),
-  ('Queso campesino', (SELECT id FROM categorias WHERE nombre = 'Lácteos'),             'kg',   12000, 'data:image/svg+xml;base64,'),
-  ('Fríjol',          (SELECT id FROM categorias WHERE nombre = 'Legumbres y granos'),  'kg',  6000, 'data:image/svg+xml;base64,'),
-  ('Cilantro',        (SELECT id FROM categorias WHERE nombre = 'Hierbas y aromáticas'), 'atado', 1000, 'data:image/svg+xml;base64,')
-) AS datos(nombre, id_categoria, unidad, precio, foto_url)
-CROSS JOIN (SELECT id FROM usuarios WHERE cedula = '123456789') AS c;--  Carlos Martínez
+INSERT INTO productos (nombre, id_categoria, id_creador, unidad, precio, foto_url) VALUES
+  ('Papa criolla',    (SELECT id FROM categorias WHERE nombre = 'Tubérculos y raíces'), (SELECT id FROM usuarios WHERE cedula = '123456789'), 'kg',  3000, 'data:image/svg+xml;base64,'),
+  ('Papa pastusa',    (SELECT id FROM categorias WHERE nombre = 'Tubérculos y raíces'), (SELECT id FROM usuarios WHERE cedula = '123456789'), 'kg',  2500, 'data:image/svg+xml;base64,'),
+  ('Yuca',            (SELECT id FROM categorias WHERE nombre = 'Tubérculos y raíces'), (SELECT id FROM usuarios WHERE cedula = '123456789'), 'kg',  2000, 'data:image/svg+xml;base64,'),
+  ('Zanahoria',       (SELECT id FROM categorias WHERE nombre = 'Tubérculos y raíces'), (SELECT id FROM usuarios WHERE cedula = '123456789'), 'kg',  2500, 'data:image/svg+xml;base64,'),
+  ('Tomate chonto',   (SELECT id FROM categorias WHERE nombre = 'Hortalizas y verduras'), (SELECT id FROM usuarios WHERE cedula = '123456789'), 'kg', 4000, 'data:image/svg+xml;base64,'),
+  ('Cebolla cabezona',(SELECT id FROM categorias WHERE nombre = 'Hortalizas y verduras'), (SELECT id FROM usuarios WHERE cedula = '123456789'), 'kg', 3500, 'data:image/svg+xml;base64,'),
+  ('Lechuga crespa',  (SELECT id FROM categorias WHERE nombre = 'Hortalizas y verduras'), (SELECT id FROM usuarios WHERE cedula = '123456789'), 'unidad',2000, 'data:image/svg+xml;base64,'),
+  ('Fresas',          (SELECT id FROM categorias WHERE nombre = 'Frutas'),              (SELECT id FROM usuarios WHERE cedula = '123456789'), 'kg',  8000, 'data:image/svg+xml;base64,'),
+  ('Manzana',         (SELECT id FROM categorias WHERE nombre = 'Frutas'),              (SELECT id FROM usuarios WHERE cedula = '123456789'), 'kg',  5000, 'data:image/svg+xml;base64,'),
+  ('Naranja',         (SELECT id FROM categorias WHERE nombre = 'Frutas'),              (SELECT id FROM usuarios WHERE cedula = '123456789'), 'kg',  3000, 'data:image/svg+xml;base64,'),
+  ('Huevos de gallina',(SELECT id FROM categorias WHERE nombre = 'Huevos'),             (SELECT id FROM usuarios WHERE cedula = '123456789'), 'unidad',500, 'data:image/svg+xml;base64,'),
+  ('Leche entera',    (SELECT id FROM categorias WHERE nombre = 'Lácteos'),             (SELECT id FROM usuarios WHERE cedula = '123456789'), 'litro', 4500, 'data:image/svg+xml;base64,'),
+  ('Queso campesino', (SELECT id FROM categorias WHERE nombre = 'Lácteos'),             (SELECT id FROM usuarios WHERE cedula = '123456789'), 'kg',   12000, 'data:image/svg+xml;base64,'),
+  ('Fríjol',          (SELECT id FROM categorias WHERE nombre = 'Legumbres y granos'),  (SELECT id FROM usuarios WHERE cedula = '123456789'), 'kg',  6000, 'data:image/svg+xml;base64,'),
+  ('Cilantro',        (SELECT id FROM categorias WHERE nombre = 'Hierbas y aromáticas'), (SELECT id FROM usuarios WHERE cedula = '123456789'), 'atado', 1000, 'data:image/svg+xml;base64,');
 
 -- Viaje de prueba (hoy)
 INSERT INTO viajes (id_campesino, fecha_viaje, hora_inicio, hora_fin, notas)

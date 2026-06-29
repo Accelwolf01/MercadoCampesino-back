@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
-from app.models import Resenia, Usuario
-from app.schemas import ReseniaOut, ReseniaCreate
+from app.models import Resenia, Usuario, Perfil
+from app.schemas import ReseniaOut, ReseniaCreate, UsuarioOut as ReseniaUsuarioOut
 from app.auth import get_current_user, verificar_permiso
 
 router = APIRouter(prefix="/resenias", tags=["Reseñas"])
@@ -35,6 +35,20 @@ def resenias_de_usuario(usuario_id: int, db: Session = Depends(get_db)):
         )
         .filter(Resenia.id_destino == usuario_id)
         .order_by(Resenia.created_at.desc())
+        .all()
+    )
+
+
+@router.get("/campesinos-activos", response_model=list[ReseniaUsuarioOut])
+def campesinos_activos(
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(get_current_user),
+):
+    return (
+        db.query(Usuario)
+        .join(Usuario.perfil)
+        .filter(Usuario.activo == True, Perfil.nombre == "campesino")
+        .order_by(Usuario.nombres)
         .all()
     )
 

@@ -1,5 +1,7 @@
 import uuid
+from datetime import date
 from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import ChatConversacion, ChatMensaje, Usuario
@@ -91,7 +93,7 @@ def obtener_conversacion(
 @router.get("/admin/pendientes", response_model=list[ChatConversacionMiniOut])
 def conversaciones_pendientes(
     db: Session = Depends(get_db),
-    _=Depends(verificar_permiso("verificar_usuarios")),
+    _=Depends(verificar_permiso("gestionar_usuarios")),
 ):
     return (
         db.query(ChatConversacion)
@@ -104,7 +106,7 @@ def conversaciones_pendientes(
 @router.get("/admin/asignadas", response_model=list[ChatConversacionMiniOut])
 def conversaciones_asignadas(
     db: Session = Depends(get_db),
-    admin: Usuario = Depends(verificar_permiso("verificar_usuarios")),
+    admin: Usuario = Depends(verificar_permiso("gestionar_usuarios")),
 ):
     return (
         db.query(ChatConversacion)
@@ -119,22 +121,41 @@ def conversaciones_asignadas(
 
 @router.get("/admin/historial", response_model=list[ChatConversacionMiniOut])
 def historial_conversaciones(
+    q: str = Query(""),
+    estado: str = Query(""),
+    desde: date | None = Query(None),
+    hasta: date | None = Query(None),
+    limit: int = Query(20, ge=1, le=200),
+    offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
-    _=Depends(verificar_permiso("verificar_usuarios")),
+    _=Depends(verificar_permiso("gestionar_usuarios")),
 ):
-    return (
-        db.query(ChatConversacion)
-        .order_by(ChatConversacion.created_at.desc())
-        .limit(50)
-        .all()
-    )
+    query = db.query(ChatConversacion)
+
+    if estado:
+        query = query.filter(ChatConversacion.estado == estado)
+    if desde:
+        query = query.filter(ChatConversacion.created_at >= desde)
+    if hasta:
+        query = query.filter(ChatConversacion.created_at <= hasta)
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            or_(
+                ChatConversacion.nombre.ilike(like),
+                ChatConversacion.email.ilike(like),
+                ChatConversacion.cedula.ilike(like),
+            )
+        )
+
+    return query.order_by(ChatConversacion.created_at.desc()).offset(offset).limit(limit).all()
 
 
 @router.put("/admin/{conv_id}/tomar")
 def tomar_conversacion(
     conv_id: int,
     db: Session = Depends(get_db),
-    admin: Usuario = Depends(verificar_permiso("verificar_usuarios")),
+    admin: Usuario = Depends(verificar_permiso("gestionar_usuarios")),
 ):
     conv = db.query(ChatConversacion).filter(ChatConversacion.id == conv_id).first()
     if not conv:
@@ -156,7 +177,7 @@ def responder_admin(
     conv_id: int,
     data: ChatMensajeCreate,
     db: Session = Depends(get_db),
-    admin: Usuario = Depends(verificar_permiso("verificar_usuarios")),
+    admin: Usuario = Depends(verificar_permiso("gestionar_usuarios")),
 ):
     conv = db.query(ChatConversacion).filter(ChatConversacion.id == conv_id).first()
     if not conv:
@@ -186,7 +207,7 @@ def responder_admin(
 def finalizar_conversacion(
     conv_id: int,
     db: Session = Depends(get_db),
-    admin: Usuario = Depends(verificar_permiso("verificar_usuarios")),
+    admin: Usuario = Depends(verificar_permiso("gestionar_usuarios")),
 ):
     conv = db.query(ChatConversacion).filter(ChatConversacion.id == conv_id).first()
     if not conv:

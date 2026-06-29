@@ -6,6 +6,7 @@
 -- ============================================================
 -- ELIMINAR TODO Y RECREAR (solo para desarrollo)
 -- ============================================================
+DROP TABLE IF EXISTS configuracion CASCADE;
 DROP TABLE IF EXISTS chat_mensajes CASCADE;
 DROP TABLE IF EXISTS chat_conversaciones CASCADE;
 DROP TABLE IF EXISTS producto_fotos CASCADE;
@@ -396,6 +397,24 @@ CREATE TABLE chat_mensajes (
   id_admin          INT          REFERENCES usuarios(id),
   created_at        TIMESTAMP    NOT NULL DEFAULT NOW()
 );
+
+-- ============================================================
+-- CONFIGURACIÓN DEL SISTEMA
+-- ============================================================
+
+CREATE TABLE configuracion (
+  clave       VARCHAR(100) PRIMARY KEY,
+  valor       VARCHAR(500) NOT NULL,
+  descripcion TEXT,
+  created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+INSERT INTO configuracion (clave, valor, descripcion) VALUES
+  ('limite_ofertas_dia',        '5',  'Máximo de ofertas flash activas por día'),
+  ('penalizacion_no_retiro',    '10', 'Puntos de confianza que se descuentan por no retirar una preorden'),
+  ('tiempo_maximo_retiro_horas','4',  'Horas máximas para retirar una preorden después de creada'),
+  ('minimo_puntos_confianza',   '0',  'Puntos de confianza mínimos para crear un viaje');
 
 -- ============================================================
 -- DATOS INICIALES

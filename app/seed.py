@@ -1,6 +1,6 @@
 from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
-from app.models import Perfil, Permiso, perfiles_permisos, Usuario, Categoria, ChatConversacion, ChatMensaje
+from app.models import Perfil, Permiso, perfiles_permisos, Usuario, Categoria, ChatConversacion, ChatMensaje, Configuracion
 from app.database import engine, Base
 import bcrypt
 
@@ -53,9 +53,26 @@ def _agregar_permisos_faltantes(db: Session):
     db.commit()
 
 
+CONFIG_DEFAULT = [
+    {"clave": "limite_ofertas_dia", "valor": "5", "descripcion": "Máximo de ofertas flash activas por día"},
+    {"clave": "penalizacion_no_retiro", "valor": "10", "descripcion": "Puntos de confianza que se descuentan por no retirar una preorden"},
+    {"clave": "tiempo_maximo_retiro_horas", "valor": "4", "descripcion": "Horas máximas para retirar una preorden después de creada"},
+    {"clave": "minimo_puntos_confianza", "valor": "0", "descripcion": "Puntos de confianza mínimos para crear un viaje"},
+]
+
+
+def _agregar_config_default(db: Session):
+    for c in CONFIG_DEFAULT:
+        existente = db.query(Configuracion).filter(Configuracion.clave == c["clave"]).first()
+        if not existente:
+            db.add(Configuracion(**c))
+    db.commit()
+
+
 def seed_data(db: Session):
     if db.query(Perfil).count() > 0:
         _agregar_permisos_faltantes(db)
+        _agregar_config_default(db)
         return
 
     perfiles_data = [
@@ -128,5 +145,8 @@ def seed_data(db: Session):
     ]
     for cat in categorias_data:
         db.add(Categoria(**cat))
+
+    for c in CONFIG_DEFAULT:
+        db.add(Configuracion(**c))
 
     db.commit()

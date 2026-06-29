@@ -287,3 +287,13 @@ class ChatMensaje(Base):
 
     conversacion = relationship("ChatConversacion", back_populates="mensajes")
     admin = relationship("Usuario", foreign_keys=[id_admin])
+
+
+class Configuracion(Base):
+    __tablename__ = "configuracion"
+
+    clave = Column(String(100), primary_key=True, index=True)
+    valor = Column(String(500), nullable=False)
+    descripcion = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=bogota_now)
+    updated_at = Column(DateTime, default=bogota_now, onupdate=bogota_now)

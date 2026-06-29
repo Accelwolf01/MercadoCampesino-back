@@ -422,6 +422,20 @@ class ReseniaUpdate(BaseModel):
         return v
 
 
+class ConfiguracionOut(BaseModel):
+    clave: str
+    valor: str
+    descripcion: Optional[str] = None
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ConfiguracionUpdate(BaseModel):
+    valor: str
+
+
 class OfertaFlashCreate(BaseModel):
     descuento_porcentaje: float
     cantidad_limite: Optional[float] = None

@@ -90,9 +90,10 @@ def seed_data(db: Session):
     password_hash = bcrypt.hashpw(b"SuperAdmin2026!", bcrypt.gensalt()).decode()
 
     usuarios_data = [
-        {"nombre": "Super Admin", "email": "superadmin@mercadocampesino.co", "password": password_hash, "id_perfil": perfiles["superadmin"].id, "activo": True, "verificado_por_admin": True, "telefono": "3000000000"},
-        {"nombre": "Carlos Campesino", "email": "carlos@campesino.co", "password": password_hash, "id_perfil": perfiles["campesino"].id, "activo": True, "verificado_por_admin": True, "telefono": "3001111111"},
-        {"nombre": "Ana Consumidora", "email": "ana@consumidor.co", "password": password_hash, "id_perfil": perfiles["consumidor"].id, "activo": True, "verificado_por_admin": True, "telefono": "3002222222"},
+        {"nombres": "Super", "apellidos": "Admin", "cedula": "0000000001", "email": "superadmin@mercadocampesino.co", "celular": "3000000001", "password_hash": password_hash, "id_perfil": perfiles["superadmin"].id, "activo": True, "verificado_por_admin": True},
+        {"nombres": "Admin", "apellidos": "Principal", "cedula": "0000000002", "email": "admin@mercadocampesino.co", "celular": "3000000002", "password_hash": password_hash, "id_perfil": perfiles["admin"].id, "activo": True, "verificado_por_admin": True},
+        {"nombres": "Carlos", "apellidos": "Campesino", "cedula": "123456789", "email": "carlos@campesino.co", "celular": "3001111111", "password_hash": password_hash, "id_perfil": perfiles["campesino"].id, "activo": True, "verificado_por_admin": True},
+        {"nombres": "Ana", "apellidos": "Consumidora", "cedula": "987654321", "email": "ana@consumidor.co", "celular": "3002222222", "password_hash": password_hash, "id_perfil": perfiles["consumidor"].id, "activo": True, "verificado_por_admin": True},
     ]
     for u in usuarios_data:
         db.add(Usuario(**u))

@@ -209,6 +209,19 @@ VALUES
     TRUE, TRUE, TRUE
   );
 
+-- Admin de prueba (contraseña: SuperAdmin2026!)
+INSERT INTO usuarios (nombres, apellidos, cedula, email, celular, password_hash, id_perfil, email_verificado, celular_verificado, verificado_por_admin)
+VALUES (
+  'Admin',
+  'Principal',
+  '0000000003',
+  'admin@mercadocampesino.co',
+  '3000000003',
+  '$2b$12$mRO5h0bo4Zw27kuPFpe4xO6Tj76xpzq77Jhf3tTSO.zkEKyJYs5VK',
+  (SELECT id FROM perfiles WHERE nombre = 'admin'),
+  TRUE, TRUE, TRUE
+);
+
 -- ============================================================
 -- TABLAS DE NEGOCIO
 -- ============================================================

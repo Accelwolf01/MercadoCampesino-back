@@ -4,7 +4,7 @@ from datetime import date, time, datetime
 
 
 class LoginRequest(BaseModel):
-    email: str
+    cedula: str
     password: str
 
 
@@ -52,7 +52,7 @@ class UsuarioCreate(BaseModel):
     nombres: str
     apellidos: str
     cedula: str
-    email: EmailStr
+    email: str = ""
     celular: str
     password: str
     id_perfil: int
@@ -428,7 +428,7 @@ class UsuarioRegister(BaseModel):
     nombres: str
     apellidos: str
     cedula: str
-    email: str
+    email: str = ""
     celular: str
     password: str
     tipo: str = "consumidor"

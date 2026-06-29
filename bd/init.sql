@@ -66,7 +66,7 @@ CREATE TABLE usuarios (
   nombres         VARCHAR(100) NOT NULL,
   apellidos       VARCHAR(100) NOT NULL,
   cedula          VARCHAR(20)  NOT NULL UNIQUE,
-  email           VARCHAR(150) NOT NULL UNIQUE,
+  email           VARCHAR(150) NOT NULL DEFAULT '',
   celular         VARCHAR(15)  NOT NULL UNIQUE,
   password_hash   TEXT         NOT NULL,
   id_perfil       INT          NOT NULL REFERENCES perfiles(id),

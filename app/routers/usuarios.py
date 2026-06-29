@@ -41,9 +41,9 @@ def crear_usuario(
     usuario_actual: Usuario = Depends(verificar_permiso("gestionar_usuarios")),
 ):
     if db.query(Usuario).filter(
-        (Usuario.email == data.email) | (Usuario.cedula == data.cedula)
+        Usuario.cedula == data.cedula
     ).first():
-        raise HTTPException(status_code=400, detail="Email o cédula ya registrados")
+        raise HTTPException(status_code=400, detail="Cédula ya registrada")
 
     perfil = db.query(Perfil).filter(Perfil.id == data.id_perfil).first()
     if not perfil:

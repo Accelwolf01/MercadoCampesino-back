@@ -19,9 +19,9 @@ class RegistroResponse(BaseModel):
 
 @router.post("/login", response_model=TokenResponse)
 def login(req: LoginRequest, db: Session = Depends(get_db)):
-    usuario = db.query(Usuario).filter(Usuario.email == req.email).first()
+    usuario = db.query(Usuario).filter(Usuario.cedula == req.cedula).first()
     if not usuario or not verify_password(req.password, usuario.password_hash):
-        raise HTTPException(status_code=401, detail="Email o contraseña incorrectos")
+        raise HTTPException(status_code=401, detail="Cédula o contraseña incorrectos")
     if not usuario.activo:
         if usuario.perfil.nombre == "bloqueado":
             raise HTTPException(status_code=403, detail="Cuenta bloqueada")
@@ -38,9 +38,9 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 @router.post("/registro", status_code=201)
 def registro(data: UsuarioRegister, db: Session = Depends(get_db)):
     if db.query(Usuario).filter(
-        (Usuario.email == data.email) | (Usuario.cedula == data.cedula) | (Usuario.celular == data.celular)
+        (Usuario.cedula == data.cedula) | (Usuario.celular == data.celular)
     ).first():
-        raise HTTPException(status_code=400, detail="Email, cédula o celular ya registrados")
+        raise HTTPException(status_code=400, detail="Cédula o celular ya registrados")
 
     perfil = db.query(Perfil).filter(Perfil.nombre == data.tipo).first()
     if not perfil:
@@ -79,8 +79,6 @@ def actualizar_perfil(
     db: Session = Depends(get_db),
     usuario: Usuario = Depends(get_current_user),
 ):
-    if db.query(Usuario).filter(Usuario.email == data.email, Usuario.id != usuario.id).first():
-        raise HTTPException(status_code=400, detail="El email ya está en uso por otro usuario")
     if db.query(Usuario).filter(Usuario.celular == data.celular, Usuario.id != usuario.id).first():
         raise HTTPException(status_code=400, detail="El celular ya está en uso por otro usuario")
     usuario.nombres = data.nombres

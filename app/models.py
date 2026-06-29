@@ -45,7 +45,7 @@ class Usuario(Base):
     nombres = Column(String(100), nullable=False)
     apellidos = Column(String(100), nullable=False)
     cedula = Column(String(20), unique=True, nullable=False)
-    email = Column(String(150), unique=True, nullable=False)
+    email = Column(String(150), default="", nullable=False)
     celular = Column(String(15), unique=True, nullable=False)
     password_hash = Column(Text, nullable=False)
     id_perfil = Column(Integer, ForeignKey("perfiles.id"), nullable=False)

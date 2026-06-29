@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 from app.database import get_db
 from app.models import Resenia, Usuario, Perfil
-from app.schemas import ReseniaOut, ReseniaCreate, UsuarioOut as ReseniaUsuarioOut
+from app.schemas import ReseniaOut, ReseniaCreate, ReseniaUpdate, UsuarioOut as ReseniaUsuarioOut
 from app.auth import get_current_user, verificar_permiso
+from app.config import bogota_today
 
 router = APIRouter(prefix="/resenias", tags=["Reseñas"])
 
@@ -63,6 +64,22 @@ def crear_resenia(
     if not destino:
         raise HTTPException(status_code=404, detail="Usuario destino no encontrado")
 
+    hoy = bogota_today()
+    ya_resenio = (
+        db.query(Resenia)
+        .filter(
+            Resenia.id_autor == usuario.id,
+            Resenia.id_destino == data.id_destino,
+            Resenia.created_at >= hoy,
+        )
+        .first()
+    )
+    if ya_resenio:
+        raise HTTPException(
+            status_code=400,
+            detail="Ya dejaste una reseña a este campesino hoy. Edita tu reseña existente o intenta mañana.",
+        )
+
     resenia = Resenia(
         id_autor=usuario.id,
         id_destino=data.id_destino,
@@ -107,6 +124,32 @@ def reportar_resenia(
     if not res:
         raise HTTPException(status_code=404, detail="Reseña no encontrada")
     res.reportada = True
+    db.commit()
+    db.refresh(res)
+    return res
+
+
+@router.put("/{resenia_id}", response_model=ReseniaOut)
+def editar_resenia(
+    resenia_id: int,
+    data: ReseniaUpdate,
+    db: Session = Depends(get_db),
+    usuario: Usuario = Depends(verificar_permiso("dejar_resenia")),
+):
+    res = (
+        db.query(Resenia)
+        .options(joinedload(Resenia.autor), joinedload(Resenia.destino))
+        .filter(Resenia.id == resenia_id)
+        .first()
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Reseña no encontrada")
+    if res.id_autor != usuario.id:
+        raise HTTPException(status_code=403, detail="Solo el autor puede editar su reseña")
+    if data.puntuacion is not None:
+        res.puntuacion = data.puntuacion
+    if data.comentario is not None:
+        res.comentario = data.comentario
     db.commit()
     db.refresh(res)
     return res

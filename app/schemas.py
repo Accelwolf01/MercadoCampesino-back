@@ -410,6 +410,18 @@ class ReseniaCreate(BaseModel):
         return v
 
 
+class ReseniaUpdate(BaseModel):
+    puntuacion: Optional[int] = None
+    comentario: Optional[str] = None
+
+    @field_validator("puntuacion")
+    @classmethod
+    def validar_puntuacion(cls, v):
+        if v is not None and (v < 1 or v > 5):
+            raise ValueError("La puntuación debe estar entre 1 y 5")
+        return v
+
+
 class OfertaFlashCreate(BaseModel):
     descuento_porcentaje: float
     cantidad_limite: Optional[float] = None

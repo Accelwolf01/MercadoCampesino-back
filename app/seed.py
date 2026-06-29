@@ -11,6 +11,8 @@ def init_db():
 PERMISOS_FALTANTES = [
     {"nombre": "Realizar preorden", "codigo": "realizar_preorden", "descripcion": "Apartar productos antes de ir a la plaza"},
     {"nombre": "Ver preordenes", "codigo": "ver_preordenes", "descripcion": "Ver pedidos apartados por consumidores"},
+    {"nombre": "Dejar resena", "codigo": "dejar_resenia", "descripcion": "Calificar y comentar al campesino"},
+    {"nombre": "Ver historial compras", "codigo": "ver_historial_compras", "descripcion": "Consultar pedidos realizados"},
 ]
 
 
@@ -29,9 +31,20 @@ def _agregar_permisos_faltantes(db: Session):
                 if campesino:
                     db.execute(perfiles_permisos.insert().values(id_perfil=campesino.id, id_permiso=permiso.id))
             if pdata["codigo"] == "realizar_preorden":
-                consumidor = db.query(Perfil).filter(Perfil.nombre == "consumidor").first()
-                if consumidor:
-                    db.execute(perfiles_permisos.insert().values(id_perfil=consumidor.id, id_permiso=permiso.id))
+                for nombre in ("consumidor", "administrador", "campesino"):
+                    p = db.query(Perfil).filter(Perfil.nombre == nombre).first()
+                    if p:
+                        db.execute(perfiles_permisos.insert().values(id_perfil=p.id, id_permiso=permiso.id))
+            if pdata["codigo"] == "dejar_resenia":
+                for nombre in ("consumidor", "administrador", "campesino"):
+                    p = db.query(Perfil).filter(Perfil.nombre == nombre).first()
+                    if p:
+                        db.execute(perfiles_permisos.insert().values(id_perfil=p.id, id_permiso=permiso.id))
+            if pdata["codigo"] == "ver_historial_compras":
+                for nombre in ("consumidor", "administrador", "campesino"):
+                    p = db.query(Perfil).filter(Perfil.nombre == nombre).first()
+                    if p:
+                        db.execute(perfiles_permisos.insert().values(id_perfil=p.id, id_permiso=permiso.id))
     db.commit()
 
 

@@ -148,7 +148,9 @@ WHERE codigo IN (
   'moderar_resenias',
   'gestionar_plazas',
   'ver_reportes',
-  'resolver_disputas'
+  'resolver_disputas',
+  'realizar_preorden',
+  'dejar_resenia'
 );
 
 -- CAMPESINO
@@ -163,7 +165,9 @@ WHERE codigo IN (
   'marcar_ubicacion',
   'ver_historial_ventas',
   'responder_resenias',
-  'ver_mapa'
+  'ver_mapa',
+  'realizar_preorden',
+  'dejar_resenia'
 );
 
 -- CONSUMIDOR

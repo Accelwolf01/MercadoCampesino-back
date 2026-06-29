@@ -1,11 +1,16 @@
+from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
-from app.models import Perfil, Permiso, perfiles_permisos, Usuario, Categoria
+from app.models import Perfil, Permiso, perfiles_permisos, Usuario, Categoria, ChatConversacion, ChatMensaje
 from app.database import engine, Base
 import bcrypt
 
 
 def init_db():
-    Base.metadata.create_all(bind=engine)
+    inspector = inspect(engine)
+    existing = inspector.get_table_names()
+    nuevas = [t for t in Base.metadata.tables if t not in existing]
+    if nuevas:
+        Base.metadata.create_all(bind=engine, tables=[Base.metadata.tables[t] for t in nuevas])
 
 
 PERMISOS_FALTANTES = [

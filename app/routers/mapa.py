@@ -26,10 +26,10 @@ def mapa_viajes(
     radio_km: Optional[float] = Query(10),
     db: Session = Depends(get_db),
 ):
-    from datetime import date
+    from config import bogota_today
     viajes = (
         db.query(Viaje)
-        .filter(Viaje.fecha_viaje == date.today(), Viaje.activo == True)
+        .filter(Viaje.fecha_viaje == bogota_today(), Viaje.activo == True)
         .all()
     )
 

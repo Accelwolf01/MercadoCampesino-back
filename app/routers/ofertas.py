@@ -34,8 +34,9 @@ def mis_ofertas(
 
 @router.get("/activas", response_model=list[OfertaFlashFullOut])
 def ofertas_activas(db: Session = Depends(get_db)):
-    hoy = date.today()
-    hora_actual = datetime.now().time()
+    from config import bogota_today, bogota_now
+    hoy = bogota_today()
+    hora_actual = bogota_now().time()
     return (
         db.query(OfertaFlash)
         .join(ViajeProducto)

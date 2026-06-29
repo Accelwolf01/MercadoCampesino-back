@@ -254,3 +254,36 @@ class TicketRespuesta(Base):
 
     ticket = relationship("Ticket", back_populates="respuestas")
     autor = relationship("Usuario", foreign_keys=[id_autor])
+
+
+class ChatConversacion(Base):
+    __tablename__ = "chat_conversaciones"
+
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String(200), nullable=False)
+    email = Column(String(200), default="")
+    cedula = Column(String(20), default="")
+    id_usuario = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
+    session_token = Column(String(100), nullable=False, index=True)
+    estado = Column(String(20), default="abierto")
+    id_admin_asignado = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
+    created_at = Column(DateTime, default=bogota_now)
+    updated_at = Column(DateTime, default=bogota_now, onupdate=bogota_now)
+
+    usuario = relationship("Usuario", foreign_keys=[id_usuario])
+    admin_asignado = relationship("Usuario", foreign_keys=[id_admin_asignado])
+    mensajes = relationship("ChatMensaje", back_populates="conversacion", cascade="all, delete-orphan", order_by="ChatMensaje.created_at")
+
+
+class ChatMensaje(Base):
+    __tablename__ = "chat_mensajes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    id_conversacion = Column(Integer, ForeignKey("chat_conversaciones.id", ondelete="CASCADE"), nullable=False)
+    mensaje = Column(Text, nullable=False)
+    es_admin = Column(Boolean, default=False)
+    id_admin = Column(Integer, ForeignKey("usuarios.id"), nullable=True)
+    created_at = Column(DateTime, default=bogota_now)
+
+    conversacion = relationship("ChatConversacion", back_populates="mensajes")
+    admin = relationship("Usuario", foreign_keys=[id_admin])

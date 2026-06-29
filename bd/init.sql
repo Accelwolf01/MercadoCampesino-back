@@ -374,6 +374,29 @@ CREATE TABLE ticket_respuestas (
   created_at  TIMESTAMP    NOT NULL DEFAULT NOW()
 );
 
+-- Chat en vivo
+CREATE TABLE chat_conversaciones (
+  id                SERIAL       PRIMARY KEY,
+  nombre            VARCHAR(200) NOT NULL,
+  email             VARCHAR(200) NOT NULL DEFAULT '',
+  cedula            VARCHAR(20)  NOT NULL DEFAULT '',
+  id_usuario        INT          REFERENCES usuarios(id),
+  session_token     VARCHAR(100) NOT NULL,
+  estado            VARCHAR(20)  NOT NULL DEFAULT 'abierto',
+  id_admin_asignado INT          REFERENCES usuarios(id),
+  created_at        TIMESTAMP    NOT NULL DEFAULT NOW(),
+  updated_at        TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE chat_mensajes (
+  id                SERIAL       PRIMARY KEY,
+  id_conversacion   INT          NOT NULL REFERENCES chat_conversaciones(id) ON DELETE CASCADE,
+  mensaje           TEXT         NOT NULL,
+  es_admin          BOOLEAN      NOT NULL DEFAULT FALSE,
+  id_admin          INT          REFERENCES usuarios(id),
+  created_at        TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
 -- ============================================================
 -- DATOS INICIALES
 -- ============================================================

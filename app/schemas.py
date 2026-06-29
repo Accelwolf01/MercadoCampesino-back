@@ -511,6 +511,59 @@ class TicketOut(BaseModel):
         from_attributes = True
 
 
+class ChatConversacionCreate(BaseModel):
+    nombre: str
+    email: str = ""
+    cedula: str = ""
+
+
+class ChatMensajeCreate(BaseModel):
+    mensaje: str
+
+
+class ChatMensajeOut(BaseModel):
+    id: int
+    id_conversacion: int
+    mensaje: str
+    es_admin: bool
+    id_admin: Optional[int] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ChatConversacionOut(BaseModel):
+    id: int
+    nombre: str
+    email: str
+    cedula: str
+    id_usuario: Optional[int] = None
+    session_token: str
+    estado: str
+    id_admin_asignado: Optional[int] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    mensajes: list[ChatMensajeOut] = []
+
+    class Config:
+        from_attributes = True
+
+
+class ChatConversacionMiniOut(BaseModel):
+    id: int
+    nombre: str
+    email: str
+    cedula: str
+    estado: str
+    id_admin_asignado: Optional[int] = None
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
+
 OfertaFlashFullOut.model_rebuild()
 ViajeProductoFullOut.model_rebuild()
 ViajeMiniOut.model_rebuild()

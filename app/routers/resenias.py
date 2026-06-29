@@ -40,10 +40,7 @@ def resenias_de_usuario(usuario_id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/campesinos-activos", response_model=list[ReseniaUsuarioOut])
-def campesinos_activos(
-    db: Session = Depends(get_db),
-    usuario: Usuario = Depends(get_current_user),
-):
+def campesinos_activos(db: Session = Depends(get_db)):
     return (
         db.query(Usuario)
         .join(Usuario.perfil)
@@ -123,6 +120,20 @@ def resenias_reportadas(
     return (
         db.query(Resenia)
         .filter(Resenia.reportada == True)
+        .order_by(Resenia.created_at.desc())
+        .all()
+    )
+
+
+@router.get("/bajas", response_model=list[ReseniaOut])
+def resenias_bajas(
+    db: Session = Depends(get_db),
+    _=Depends(verificar_permiso("ver_reportes")),
+):
+    return (
+        db.query(Resenia)
+        .options(joinedload(Resenia.autor), joinedload(Resenia.destino))
+        .filter(Resenia.puntuacion == 1)
         .order_by(Resenia.created_at.desc())
         .all()
     )

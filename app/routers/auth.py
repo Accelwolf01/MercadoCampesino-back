@@ -37,10 +37,10 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/registro", status_code=201)
 def registro(data: UsuarioRegister, db: Session = Depends(get_db)):
-    if db.query(Usuario).filter(
-        (Usuario.cedula == data.cedula) | (Usuario.celular == data.celular)
-    ).first():
-        raise HTTPException(status_code=400, detail="Cédula o celular ya registrados")
+    if db.query(Usuario).filter(Usuario.cedula == data.cedula).first():
+        raise HTTPException(status_code=400, detail="Esta cédula ya está registrada")
+    if db.query(Usuario).filter(Usuario.celular == data.celular).first():
+        raise HTTPException(status_code=400, detail="Este celular ya está registrado")
 
     perfil = db.query(Perfil).filter(Perfil.nombre == data.tipo).first()
     if not perfil:

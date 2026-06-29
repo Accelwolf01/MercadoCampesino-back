@@ -43,7 +43,7 @@ def crear_usuario(
     if db.query(Usuario).filter(
         Usuario.cedula == data.cedula
     ).first():
-        raise HTTPException(status_code=400, detail="Cédula ya registrada")
+        raise HTTPException(status_code=400, detail="Esta cédula ya está registrada")
 
     perfil = db.query(Perfil).filter(Perfil.id == data.id_perfil).first()
     if not perfil:

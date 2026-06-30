@@ -198,7 +198,26 @@ def responder_admin(
     )
     db.add(msg)
     conv.updated_at = None
-    db.commit()
-    db.refresh(msg)
+    try:
+        db.commit()
+        db.refresh(msg)
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Error al guardar mensaje: {str(e)}")
     return ChatMensajeOut.model_validate(msg)
+
+
+@router.put("/admin/{conv_id}/finalizar")
+def finalizar_conversacion(
+    conv_id: int,
+    db: Session = Depends(get_db),
+    admin: Usuario = Depends(verificar_permiso("gestionar_usuarios")),
+):
+    conv = db.query(ChatConversacion).filter(ChatConversacion.id == conv_id).first()
+    if not conv:
+        raise HTTPException(status_code=404, detail="Conversación no encontrada")
+    conv.estado = "finalizado"
+    conv.updated_at = None
+    db.commit()
+    return {"mensaje": "Conversación finalizada"}
 

@@ -60,7 +60,6 @@ def enviar_mensaje(
         es_admin=False,
     )
     db.add(msg)
-    conv.updated_at = None
     db.commit()
     db.refresh(msg)
     return ChatMensajeOut.model_validate(msg)
@@ -197,7 +196,6 @@ def responder_admin(
         id_admin=admin.id,
     )
     db.add(msg)
-    conv.updated_at = None
     try:
         db.commit()
         db.refresh(msg)
@@ -217,7 +215,6 @@ def finalizar_conversacion(
     if not conv:
         raise HTTPException(status_code=404, detail="Conversación no encontrada")
     conv.estado = "finalizado"
-    conv.updated_at = None
     db.commit()
     return {"mensaje": "Conversación finalizada"}
 

@@ -22,9 +22,9 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     usuario = db.query(Usuario).filter(Usuario.cedula == req.cedula).first()
     if not usuario or not verify_password(req.password, usuario.password_hash):
         raise HTTPException(status_code=401, detail="Cédula o contraseña incorrectos")
+    if usuario.id_perfil == 5 or usuario.motivo_bloqueo is not None:
+        raise HTTPException(status_code=403, detail="Cuenta bloqueada. No tienes permitido iniciar sesión.")
     if not usuario.activo:
-        if usuario.perfil.nombre == "bloqueado":
-            raise HTTPException(status_code=403, detail="Cuenta bloqueada")
         raise HTTPException(status_code=403, detail="Cuenta pendiente de verificación por un administrador")
 
     token = create_access_token({"sub": str(usuario.id)})

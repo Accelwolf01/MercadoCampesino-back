@@ -156,7 +156,7 @@ def bloquear_usuario(
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    if usuario.perfil.nombre == "bloqueado":
+    if usuario.motivo_bloqueo is not None:
         raise HTTPException(status_code=400, detail="El usuario ya está bloqueado")
     if not body.motivo.strip():
         raise HTTPException(status_code=400, detail="Debes indicar un motivo de bloqueo")

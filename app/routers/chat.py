@@ -202,17 +202,3 @@ def responder_admin(
     db.refresh(msg)
     return ChatMensajeOut.model_validate(msg)
 
-
-@router.put("/admin/{conv_id}/finalizar")
-def finalizar_conversacion(
-    conv_id: int,
-    db: Session = Depends(get_db),
-    admin: Usuario = Depends(verificar_permiso("gestionar_usuarios")),
-):
-    conv = db.query(ChatConversacion).filter(ChatConversacion.id == conv_id).first()
-    if not conv:
-        raise HTTPException(status_code=404, detail="Conversación no encontrada")
-    conv.estado = "finalizado"
-    conv.updated_at = None
-    db.commit()
-    return {"mensaje": "Conversación finalizada"}

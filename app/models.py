@@ -22,7 +22,7 @@ class Perfil(Base):
     created_at = Column(DateTime, default=bogota_now)
     updated_at = Column(DateTime, default=bogota_now, onupdate=bogota_now)
 
-    usuarios = relationship("Usuario", back_populates="perfil")
+    usuarios = relationship("Usuario", back_populates="perfil", foreign_keys="Usuario.id_perfil")
     permisos = relationship("Permiso", secondary=perfiles_permisos, back_populates="perfiles")
 
 

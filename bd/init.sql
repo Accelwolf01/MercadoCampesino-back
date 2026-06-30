@@ -71,10 +71,12 @@ CREATE TABLE usuarios (
   celular_verificado BOOLEAN   NOT NULL DEFAULT FALSE,
   foto_cedula     TEXT,                  -- ruta/imagen de la cédula para verificacin
   verificado_por_admin BOOLEAN NOT NULL DEFAULT FALSE,
-  puntos_confianza INT        NOT NULL DEFAULT 100,
-  activo          BOOLEAN      NOT NULL DEFAULT TRUE,
-  created_at      TIMESTAMP    NOT NULL DEFAULT NOW(),
-  updated_at      TIMESTAMP    NOT NULL DEFAULT NOW()
+  puntos_confianza   INT        NOT NULL DEFAULT 100,
+  activo             BOOLEAN    NOT NULL DEFAULT TRUE,
+  motivo_bloqueo     TEXT,
+  id_perfil_original INT        REFERENCES perfiles(id),
+  created_at         TIMESTAMP  NOT NULL DEFAULT NOW(),
+  updated_at         TIMESTAMP  NOT NULL DEFAULT NOW()
 );
 
 -- ============================================================

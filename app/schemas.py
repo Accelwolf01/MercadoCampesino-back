@@ -95,6 +95,9 @@ class UsuarioUpdate(BaseModel):
     activo: Optional[bool] = None
 
 
+class BloquearBody(BaseModel):
+    motivo: str
+
 class UsuarioOut(BaseModel):
     id: int
     nombres: str
@@ -110,6 +113,8 @@ class UsuarioOut(BaseModel):
     foto_cedula: Optional[str] = None
     puntos_confianza: int
     activo: bool
+    motivo_bloqueo: Optional[str] = None
+    id_perfil_original: Optional[int] = None
     created_at: datetime
 
     class Config:

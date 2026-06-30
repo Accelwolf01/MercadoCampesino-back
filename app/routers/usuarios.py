@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from typing import Optional
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import Usuario, Perfil
-from app.schemas import UsuarioCreate, UsuarioUpdate, UsuarioOut
+from app.models import Usuario, Perfil, Viaje
+from app.schemas import UsuarioCreate, UsuarioUpdate, UsuarioOut, BloquearBody
 from pydantic import BaseModel
 
 
@@ -149,15 +149,27 @@ def verificar_usuario(
 @router.put("/{usuario_id}/bloquear", response_model=UsuarioOut)
 def bloquear_usuario(
     usuario_id: int,
+    body: BloquearBody,
     db: Session = Depends(get_db),
     _=Depends(verificar_permiso("gestionar_usuarios")),
 ):
     usuario = db.query(Usuario).filter(Usuario.id == usuario_id).first()
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    if usuario.perfil.nombre == "bloqueado":
+        raise HTTPException(status_code=400, detail="El usuario ya está bloqueado")
+    if not body.motivo.strip():
+        raise HTTPException(status_code=400, detail="Debes indicar un motivo de bloqueo")
+    usuario.id_perfil_original = usuario.id_perfil
     perfil_bloqueado = db.query(Perfil).filter(Perfil.nombre == "bloqueado").first()
     usuario.id_perfil = perfil_bloqueado.id
-    usuario.activo = True
+    usuario.motivo_bloqueo = body.motivo.strip()
+    viajes_activos = db.query(Viaje).filter(
+        Viaje.id_campesino == usuario_id,
+        Viaje.activo == True
+    ).all()
+    for v in viajes_activos:
+        v.activo = False
     db.commit()
     db.refresh(usuario)
     return usuario
@@ -174,8 +186,13 @@ def activar_usuario(
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     if usuario.perfil.nombre != "bloqueado":
         raise HTTPException(status_code=400, detail="El usuario no está bloqueado")
-    perfil_consumidor = db.query(Perfil).filter(Perfil.nombre == "consumidor").first()
-    usuario.id_perfil = perfil_consumidor.id
+    if usuario.id_perfil_original:
+        usuario.id_perfil = usuario.id_perfil_original
+    else:
+        perfil_consumidor = db.query(Perfil).filter(Perfil.nombre == "consumidor").first()
+        usuario.id_perfil = perfil_consumidor.id
+    usuario.id_perfil_original = None
+    usuario.motivo_bloqueo = None
     db.commit()
     db.refresh(usuario)
     return usuario

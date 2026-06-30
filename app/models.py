@@ -55,10 +55,13 @@ class Usuario(Base):
     verificado_por_admin = Column(Boolean, default=False)
     puntos_confianza = Column(Integer, default=100)
     activo = Column(Boolean, default=True)
+    motivo_bloqueo = Column(Text)
+    id_perfil_original = Column(Integer, ForeignKey("perfiles.id"))
     created_at = Column(DateTime, default=bogota_now)
     updated_at = Column(DateTime, default=bogota_now, onupdate=bogota_now)
 
-    perfil = relationship("Perfil", back_populates="usuarios")
+    perfil = relationship("Perfil", back_populates="usuarios", foreign_keys=[id_perfil])
+    perfil_original = relationship("Perfil", foreign_keys=[id_perfil_original], viewonly=True)
     viajes = relationship("Viaje", back_populates="campesino", foreign_keys="Viaje.id_campesino")
 
 

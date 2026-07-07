@@ -53,6 +53,8 @@ class Usuario(Base):
     celular_verificado = Column(Boolean, default=False)
     foto_cedula = Column(Text)
     verificado_por_admin = Column(Boolean, default=False)
+    rechazado = Column(Boolean, default=False)
+    motivo_rechazo = Column(Text)
     puntos_confianza = Column(Integer, default=100)
     activo = Column(Boolean, default=True)
     motivo_bloqueo = Column(Text)

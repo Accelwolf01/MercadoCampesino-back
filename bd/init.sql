@@ -71,6 +71,8 @@ CREATE TABLE usuarios (
   celular_verificado BOOLEAN   NOT NULL DEFAULT FALSE,
   foto_cedula     TEXT,                  -- ruta/imagen de la cédula para verificacin
   verificado_por_admin BOOLEAN NOT NULL DEFAULT FALSE,
+  rechazado            BOOLEAN NOT NULL DEFAULT FALSE,
+  motivo_rechazo       TEXT,
   puntos_confianza   INT        NOT NULL DEFAULT 100,
   activo             BOOLEAN    NOT NULL DEFAULT TRUE,
   motivo_bloqueo     TEXT,

@@ -124,6 +124,7 @@ def pendientes_verificacion(
         .filter(
             Usuario.verificado_por_admin == False,
             Usuario.activo == False,
+            Usuario.rechazado == False,
         )
         .order_by(Usuario.created_at)
         .all()
@@ -209,9 +210,23 @@ def rechazar_usuario(
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     if usuario.verificado_por_admin:
         raise HTTPException(status_code=400, detail="El usuario ya fue verificado")
-    db.delete(usuario)
+    usuario.rechazado = True
+    usuario.motivo_rechazo = "Documento no válido. Asegúrate de que la foto de tu cédula sea clara y legible."
     db.commit()
-    return {"mensaje": "Solicitud rechazada. El usuario puede volver a registrarse."}
+    return {"mensaje": "Solicitud rechazada. El usuario podrá ver el motivo al intentar iniciar sesión."}
+
+
+@router.get("/rechazados", response_model=list[UsuarioOut])
+def listar_rechazados(
+    db: Session = Depends(get_db),
+    _=Depends(verificar_permiso("verificar_campesinos")),
+):
+    return (
+        db.query(Usuario)
+        .filter(Usuario.rechazado == True)
+        .order_by(Usuario.created_at.desc())
+        .all()
+    )
 
 
 @router.put("/{usuario_id}/reset-password")

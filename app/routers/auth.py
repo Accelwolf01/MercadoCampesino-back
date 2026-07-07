@@ -22,6 +22,13 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     usuario = db.query(Usuario).filter(Usuario.cedula == req.cedula).first()
     if not usuario or not verify_password(req.password, usuario.password_hash):
         raise HTTPException(status_code=401, detail="Cédula o contraseña incorrectos")
+    if usuario.rechazado:
+        raise HTTPException(
+            status_code=403,
+            detail="Tu solicitud de registro fue rechazada. "
+            "Por favor regístrate nuevamente. "
+            "Asegúrate de que la foto de tu cédula tenga la mejor calidad posible."
+        )
     if usuario.id_perfil == 5 or usuario.motivo_bloqueo is not None:
         raise HTTPException(status_code=403, detail="Cuenta bloqueada. No tienes permitido iniciar sesión.")
     if not usuario.activo:
@@ -37,30 +44,49 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 
 @router.post("/registro", status_code=201)
 def registro(data: UsuarioRegister, db: Session = Depends(get_db)):
-    if db.query(Usuario).filter(Usuario.cedula == data.cedula).first():
+    usuario_existente = db.query(Usuario).filter(Usuario.cedula == data.cedula).first()
+    if usuario_existente and not usuario_existente.rechazado:
         raise HTTPException(status_code=400, detail="Esta cédula ya está registrada")
-    if db.query(Usuario).filter(Usuario.celular == data.celular).first():
+    if db.query(Usuario).filter(Usuario.celular == data.celular, Usuario.rechazado == False).first():
         raise HTTPException(status_code=400, detail="Este celular ya está registrado")
 
     perfil = db.query(Perfil).filter(Perfil.nombre == data.tipo).first()
     if not perfil:
         raise HTTPException(status_code=400, detail="Tipo de perfil no válido")
 
-    usuario = Usuario(
-        nombres=data.nombres,
-        apellidos=data.apellidos,
-        cedula=data.cedula,
-        email=data.email,
-        celular=data.celular,
-        password_hash=hash_password(data.password),
-        id_perfil=perfil.id,
-        foto_cedula=data.foto_cedula,
-        activo=False,
-        verificado_por_admin=False,
-    )
-    db.add(usuario)
-    db.commit()
-    db.refresh(usuario)
+    if usuario_existente and usuario_existente.rechazado:
+        # Re-registro: actualizar datos del usuario rechazado
+        usuario_existente.nombres = data.nombres
+        usuario_existente.apellidos = data.apellidos
+        usuario_existente.email = data.email
+        usuario_existente.celular = data.celular
+        usuario_existente.password_hash = hash_password(data.password)
+        usuario_existente.id_perfil = perfil.id
+        usuario_existente.foto_cedula = data.foto_cedula
+        usuario_existente.activo = False
+        usuario_existente.verificado_por_admin = False
+        usuario_existente.rechazado = False
+        usuario_existente.motivo_rechazo = None
+        db.commit()
+        db.refresh(usuario_existente)
+        response = usuario_existente
+    else:
+        usuario = Usuario(
+            nombres=data.nombres,
+            apellidos=data.apellidos,
+            cedula=data.cedula,
+            email=data.email,
+            celular=data.celular,
+            password_hash=hash_password(data.password),
+            id_perfil=perfil.id,
+            foto_cedula=data.foto_cedula,
+            activo=False,
+            verificado_por_admin=False,
+        )
+        db.add(usuario)
+        db.commit()
+        db.refresh(usuario)
+        response = usuario
 
     return RegistroResponse(
         mensaje="Registro exitoso. Un administrador revisará y activará tu cuenta en las próximas 24 horas.",

@@ -49,7 +49,7 @@ def get_current_user(
     if not usuario.activo:
         if usuario.perfil.nombre == "bloqueado":
             raise HTTPException(status_code=403, detail="Cuenta bloqueada")
-        raise HTTPException(status_code=403, detail="Cuenta pendiente de verificación por un administrador")
+        raise HTTPException(status_code=403, detail="Tu cuenta está pendiente de verificación. Intenta en un máximo de 72 horas.")
     return usuario
 
 

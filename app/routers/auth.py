@@ -32,7 +32,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     if usuario.id_perfil == 5 or usuario.motivo_bloqueo is not None:
         raise HTTPException(status_code=403, detail="Cuenta bloqueada. No tienes permitido iniciar sesión.")
     if not usuario.activo:
-        raise HTTPException(status_code=403, detail="Cuenta pendiente de verificación por un administrador")
+        raise HTTPException(status_code=403, detail="Tu cuenta está pendiente de verificación. Intenta en un máximo de 72 horas.")
 
     token = create_access_token({"sub": str(usuario.id)})
 
@@ -89,7 +89,7 @@ def registro(data: UsuarioRegister, db: Session = Depends(get_db)):
         response = usuario
 
     return RegistroResponse(
-        mensaje="Registro exitoso. Un administrador revisará y activará tu cuenta en las próximas 24 horas.",
+        mensaje="Registro exitoso. Un administrador revisará tu cuenta en un máximo de 72 horas.",
         pendiente_verificacion=True,
     )
 
